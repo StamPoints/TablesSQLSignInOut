@@ -1,4 +1,10 @@
 ﻿@page "/counter"
+
+
+protected override async Task OnInitializedAsync()
+{
+    Employees = await DbContext.Employees.ToListAsync();
+}
 @rendermode InteractiveServer
 
 <PageTitle>Counter</PageTitle>
@@ -10,6 +16,8 @@
 <button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
 
 @code {
+    
+    private List <Employee> Employees { get; set; }
     private int currentCount = 0;
 
     private void IncrementCount()

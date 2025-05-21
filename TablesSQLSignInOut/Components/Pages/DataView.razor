@@ -1,0 +1,59 @@
+﻿@page "/DataView"
+@using System.Diagnostics
+
+
+<h1>Data View</h1>
+
+@if (Employees != null)
+{
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Family Name</th>
+                <th>Age</th>
+                <th>Work ID</th>
+                <th>Email</th>
+                <th>Sign In Time</th>
+                <th>Sign Out Time</th>
+                @inject YourDbContext DbContext
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var employee in Employees)
+                builder.Services.AddDbContext<YourDbContext>(options =>
+                    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+            {
+                <tr>
+                    <td>@employee.ID</td>
+                    <td>@employee.Name</td>
+                    <td>@employee.FamilyName</td>
+                    <td>@employee.Age</td>
+                    <td>@employee.WorkID</td>
+                    <td>@employee.Email</td>
+                    <td>@employee.SignInTime.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                    <td>@employee.SignOutTime.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>Loading...</p>
+}
+
+@code {
+   
+    
+    private IQueryable<Employee> Employees { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using (var context = new YourDbContext())
+        {
+            Employees = context.Employees;
+        }
+    }
+}

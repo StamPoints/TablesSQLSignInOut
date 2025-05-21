@@ -1,6 +1,11 @@
 using TablesSQLSignInOut.Components;
+using Microsoft.EntityFrameworkCore;
+using System.Diagnostics.CodeAnalysis;
 
 var builder = WebApplication.CreateBuilder(args);
+
+await using var db = new YourDbContext();
+
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
