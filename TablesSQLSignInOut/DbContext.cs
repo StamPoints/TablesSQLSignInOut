@@ -1,20 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.AspNetCore.Hosting.Server;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 
 public class YourDbContext : DbContext
 {
-    
-    public DbSet<Employee> Employees { get; set; }
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    public YourDbContext(DbContextOptions<YourDbContext> options)
+        : base(options)
     {
-        optionsBuilder.UseSqlServer("Server = 100.117.170.73; Database = SignInOutData; User Id = StamPoints; Password = Gjholli & 2201;");
     }
 
-    
+    public DbSet<Employee> Employees { get; set; }
 }
-
 
 public class Employee
 {
@@ -26,11 +20,4 @@ public class Employee
     public string Email { get; set; }
     public DateTime SignInTime { get; set; }
     public DateTime SignOutTime { get; set; }
-}
-
-namespace TablesSQLSignInOut
-{
-    public class DbContext
-    {
-    }
 }

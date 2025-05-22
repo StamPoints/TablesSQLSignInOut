@@ -1,12 +1,20 @@
 ﻿@page "/DataView"
-@using System.Diagnostics
-
+@using Microsoft.EntityFrameworkCore
+@inject IDbContextFactory<YourDbContext> DbContextFactory
 
 <h1>Data View</h1>
 
-@if (Employees != null)
+@if (Employees == null)
 {
-    <table>
+    <p><em>Loading...</em></p>
+}
+else if (!Employees.Any())
+{
+    <p>No employee records found.</p>
+}
+else
+{
+    <table class="table">
         <thead>
             <tr>
                 <th>ID</th>
@@ -17,13 +25,10 @@
                 <th>Email</th>
                 <th>Sign In Time</th>
                 <th>Sign Out Time</th>
-                @inject YourDbContext DbContext
             </tr>
         </thead>
         <tbody>
             @foreach (var employee in Employees)
-                builder.Services.AddDbContext<YourDbContext>(options =>
-                    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
             {
                 <tr>
                     <td>@employee.ID</td>
@@ -39,21 +44,13 @@
         </tbody>
     </table>
 }
-else
-{
-    <p>Loading...</p>
-}
 
 @code {
-   
-    
-    private IQueryable<Employee> Employees { get; set; }
+    private List<Employee> Employees;
 
     protected override async Task OnInitializedAsync()
     {
-        using (var context = new YourDbContext())
-        {
-            Employees = context.Employees;
-        }
+        using var context = DbContextFactory.CreateDbContext();
+        Employees = await context.Employees.ToListAsync();
     }
 }
