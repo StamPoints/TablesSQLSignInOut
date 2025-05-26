@@ -1,4 +1,6 @@
-﻿@page "/signinout"
+﻿@using Microsoft.AspNetCore.Authorization
+
+@page "/Signinout"
 @attribute [Authorize(Roles = "User")]
 
 <h3>Sign In/Out</h3>

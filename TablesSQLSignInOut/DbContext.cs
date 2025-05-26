@@ -1,11 +1,21 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
+
+  public class ApplicationDbContext : DbContext
+{
+    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+        : base(options)
+    {
+    }
+}
+
 public class SqlServerDbContext : DbContext
 {
     public SqlServerDbContext(DbContextOptions<SqlServerDbContext> options)
         : base(options)
     {
     }
+
 
     public DbSet<Employee> Employees { get; set; }
 }
@@ -31,5 +41,5 @@ public class Employee
     public string UserPage { get; set; }
     public int WorkTimeTotal { get; set; }
     public string JobTitle { get; set; }
-    public string Privilege { get; set; }
+    public string privileges { get; set; }
 }

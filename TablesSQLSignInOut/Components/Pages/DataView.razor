@@ -2,6 +2,9 @@
 @using Microsoft.EntityFrameworkCore
 @inject IDbContextFactory<SqlServerDbContext> DbContextFactory
 @inject NavigationManager NavigationManager
+@inject IAuthService AuthService
+
+
 
 
 <h1>Data View</h1>
@@ -19,12 +22,11 @@ else
     <table class="table table-striped table-hover">
         <thead class="thead-dark">
             <tr>
-                
+
                 <th>Work ID</th>
                 <th>Name</th>
                 <th>Family Name</th>
-                <th>Sign In/Out Time</th>
-                <th>Status</th>
+
                 <th>User Page</th>
                 <th>Actions</th>
             </tr>
@@ -33,16 +35,10 @@ else
             @foreach (var employee in Employees)
             {
                 <tr>
-                    
+
                     <td>@employee.WorkID</td>
                     <td>@employee.Name</td>
                     <td>@employee.FamilyName</td>
-                    <td>@employee.SignInOutTime.ToString("yyyy-MM-dd HH:mm:ss")</td>
-                    <td>
-                        <span class="badge @(employee.InOutWork ? "badge-success" : "badge-danger")">
-                            @(employee.InOutWork ? "In" : "Out")
-                        </span>
-                    </td>
                     <td>
                         <a href="@employee.UserPage" target="_blank">View</a>
                     </td>
@@ -81,9 +77,16 @@ else
         {
             context.Employees.Remove(employee);
             await context.SaveChangesAsync();
-            Employees.Remove(employee); // Also remove from UI
+            Employees.Remove(employee); // Update the UI
             StateHasChanged();
         }
     }
-
+    protected override void OnInitialized()
+    {
+        if (!AuthService.IsLoggedIn)
+        {
+            NavigationManager.NavigateTo("/login", true);
+        }
+    }
 }
+

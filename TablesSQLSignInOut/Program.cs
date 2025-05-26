@@ -2,12 +2,23 @@ using TablesSQLSignInOut.Components;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Components.Authorization;
+using TablesSQLSignInOut; // or the correct root namespace where App.razor lives
+
+
+
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddDefaultIdentity<IdentityUser>()
-    .AddRoles<IdentityRole>()
-    .AddEntityFrameworkStores<ApplicationDbContext>();
+builder.Services.AddIdentity<ApplicationUser, ApplicationRole>()
+    .AddUserStore<CustomUserStore>()
+    .AddRoleStore<CustomRoleStore>()
+    .AddDefaultTokenProviders();
+
+builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
+builder.Services.AddAuthorization();
+
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 
 builder.Services.AddDbContextFactory<SqlServerDbContext>(options =>
