@@ -1,0 +1,28 @@
+﻿@page "/signinout"
+@attribute [Authorize(Roles = "User")]
+
+<h3>Sign In/Out</h3>
+
+<button @onclick="ToggleSignInOut">@buttonText</button>
+<p>@statusMessage</p>
+
+@code {
+    private string buttonText = "Sign In";
+    private string statusMessage = "";
+
+    private void ToggleSignInOut()
+    {
+        if (buttonText == "Sign In")
+        {
+            buttonText = "Sign Out";
+            statusMessage = $"Signed in at {DateTime.Now}";
+            // Record sign-in time in the database
+        }
+        else
+        {
+            buttonText = "Sign In";
+            statusMessage = $"Signed out at {DateTime.Now}";
+            // Record sign-out time in the database
+        }
+    }
+}

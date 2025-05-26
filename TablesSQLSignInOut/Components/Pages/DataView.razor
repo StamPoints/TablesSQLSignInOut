@@ -1,6 +1,8 @@
 ﻿@page "/DataView"
 @using Microsoft.EntityFrameworkCore
-@inject IDbContextFactory<YourDbContext> DbContextFactory
+@inject IDbContextFactory<SqlServerDbContext> DbContextFactory
+@inject NavigationManager NavigationManager
+
 
 <h1>Data View</h1>
 
@@ -14,36 +16,49 @@ else if (!Employees.Any())
 }
 else
 {
-    <table class="table">
-        <thead>
+    <table class="table table-striped table-hover">
+        <thead class="thead-dark">
             <tr>
-                <th>Session ID</th>
+                
                 <th>Work ID</th>
                 <th>Name</th>
                 <th>Family Name</th>
-                <th>Sign In Out Time</th>
-                <th>In or Out</th>
-				<th>User Page</th>
-                
+                <th>Sign In/Out Time</th>
+                <th>Status</th>
+                <th>User Page</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
             @foreach (var employee in Employees)
             {
                 <tr>
-                    <td>@employee.SessionId</td>
+                    
                     <td>@employee.WorkID</td>
                     <td>@employee.Name</td>
                     <td>@employee.FamilyName</td>
                     <td>@employee.SignInOutTime.ToString("yyyy-MM-dd HH:mm:ss")</td>
-                    <td>@employee.InOutWork</td>
-                    <td>@employee.UserPage</td>
+                    <td>
+                        <span class="badge @(employee.InOutWork ? "badge-success" : "badge-danger")">
+                            @(employee.InOutWork ? "In" : "Out")
+                        </span>
+                    </td>
+                    <td>
+                        <a href="@employee.UserPage" target="_blank">View</a>
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-primary me-1" @onclick="() => EditEmployee(employee.ID)">
+                            <i class="bi bi-pencil-square"></i> Edit
+                        </button>
+                        <button class="btn btn-sm btn-danger" @onclick="() => DeleteEmployee(employee.ID)">
+                            <i class="bi bi-trash"></i> Delete
+                        </button>
+                    </td>
                 </tr>
             }
         </tbody>
     </table>
 }
-
 @code {
     private List<Employee> Employees;
 
@@ -52,4 +67,23 @@ else
         using var context = DbContextFactory.CreateDbContext();
         Employees = await context.Employees.ToListAsync();
     }
+
+    private void EditEmployee(int id)
+    {
+        NavigationManager.NavigateTo($"/edit-employee/{id}");
+    }
+
+    private async Task DeleteEmployee(int id)
+    {
+        using var context = DbContextFactory.CreateDbContext();
+        var employee = await context.Employees.FindAsync(id);
+        if (employee != null)
+        {
+            context.Employees.Remove(employee);
+            await context.SaveChangesAsync();
+            Employees.Remove(employee); // Also remove from UI
+            StateHasChanged();
+        }
+    }
+
 }
