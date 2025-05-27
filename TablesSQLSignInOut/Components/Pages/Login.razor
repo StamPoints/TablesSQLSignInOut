@@ -1,5 +1,8 @@
-﻿@inject AuthenticationStateProvider AuthenticationStateProvider
+﻿@page "/login"
+@attribute [AllowAnonymous]
+@inject AuthenticationStateProvider AuthenticationStateProvider
 @inject NavigationManager NavigationManager
+
 
 <EditForm Model="loginModel" OnValidSubmit="HandleLogin">
     <InputText @bind-Value="loginModel.UserName" placeholder="Username" />
