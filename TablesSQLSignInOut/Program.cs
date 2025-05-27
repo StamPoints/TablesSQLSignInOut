@@ -1,56 +1,59 @@
-using TablesSQLSignInOut.Components;
-using Microsoft.EntityFrameworkCore;
-using System.Diagnostics.CodeAnalysis;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Components.Authorization;
-using TablesSQLSignInOut; // or the correct root namespace where App.razor lives
-
-
-
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using TablesSQLSignInOut;
+using TablesSQLSignInOut.Components;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Add services to the container.
+builder.Services.AddRazorPages();
+builder.Services.AddServerSideBlazor();
+
+// Configure Identity services
 builder.Services.AddIdentity<ApplicationUser, ApplicationRole>()
     .AddUserStore<CustomUserStore>()
     .AddRoleStore<CustomRoleStore>()
     .AddDefaultTokenProviders();
 
+// Register authentication and authorization services
 builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
 builder.Services.AddAuthorization();
 
+// Register custom authentication service
 builder.Services.AddScoped<IAuthService, AuthService>();
 
-
+// Configure SQL Server DbContext
 builder.Services.AddDbContextFactory<SqlServerDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("SqlServerConnection")));
 
+// Configure MySQL DbContext
 builder.Services.AddDbContext<MySqlDbContext>(options =>
     options.UseMySql(
         builder.Configuration.GetConnectionString("MySqlConnection"),
         ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("MySqlConnection"))));
 
-
-
-// Add services to the container.
-builder.Services.AddRazorComponents()
-    .AddInteractiveServerComponents();
-
+// Build the app
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Error", createScopeForErrors: true);
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+    app.UseExceptionHandler("/Error");
     app.UseHsts();
 }
 
 app.UseHttpsRedirection();
-
 app.UseStaticFiles();
-app.UseAntiforgery();
 
-app.MapRazorComponents<App>()
-    .AddInteractiveServerRenderMode();
+app.UseRouting();
+
+app.UseAuthentication();
+app.UseAuthorization();
+
+// Map endpoints
+app.MapRazorPages();
+app.MapBlazorHub();
+app.MapFallbackToPage("/_Host");
 
 app.Run();

@@ -1,25 +1,14 @@
 ﻿@using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Components.Routing
-@using TablesSQLSignInOut.Layouts
-@using TablesSQLSignInOut
+@using TablesSQLSignInOut.Components.Layout
 
 <CascadingAuthenticationState>
     <Router AppAssembly="@typeof(App).Assembly">
         <Found Context="routeData">
             <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
-                <NotAuthorized Context="authContext">
-                    @if (!authContext.User.Identity?.IsAuthenticated ?? false)
-                    {
-                        <RedirectToLogin />
-                    }
-                    else
-                    {
-                        <p>You are not authorized to access this page.</p>
-                    }
+                <NotAuthorized>
+                    <RedirectToLogin />
                 </NotAuthorized>
-                <Authorizing>
-                    <p>Authenticating...</p>
-                </Authorizing>
             </AuthorizeRouteView>
         </Found>
         <NotFound>

@@ -1,47 +1,42 @@
-﻿@page "/login"
+﻿@inject AuthenticationStateProvider AuthenticationStateProvider
 @inject NavigationManager NavigationManager
-@inject IDbContextFactory<SqlServerDbContext> DbContextFactory
-@using Microsoft.EntityFrameworkCore
-
-<h3>Login</h3>
-
-@if (!string.IsNullOrEmpty(errorMessage))
-{
-    <div class="alert alert-danger">@errorMessage</div>
-}
 
 <EditForm Model="loginModel" OnValidSubmit="HandleLogin">
-    <InputText @bind-Value="loginModel.UserName" placeholder="Username" class="form-control mb-2" />
-    <InputText @bind-Value="loginModel.Password" placeholder="Password" type="password" class="form-control mb-2" />
-    <button class="btn btn-primary" type="submit">Login</button>
+    <InputText @bind-Value="loginModel.UserName" placeholder="Username" />
+    <InputText @bind-Value="loginModel.Password" placeholder="Password" type="password" />
+    <button type="submit">Login</button>
 </EditForm>
 
 @code {
-    private LoginModel loginModel = new();
-    private string errorMessage;
+    private LoginModel loginModel = new LoginModel();
 
     private async Task HandleLogin()
     {
-        using var context = DbContextFactory.CreateDbContext();
-        var user = await context.Users
-            .FirstOrDefaultAsync(u => u.UserName == loginModel.UserName && u.Password == loginModel.Password);
+        var user = AuthenticateUser(loginModel.UserName, loginModel.Password);
 
         if (user != null)
         {
-            // Store identity info in session or a custom authentication service
-            NavigationManager.NavigateTo("/dataview");
+            var customAuthProvider = (CustomAuthenticationStateProvider)AuthenticationStateProvider;
+            await customAuthProvider.MarkUserAsAuthenticated(user);
+
+            NavigationManager.NavigateTo("/");
         }
         else
         {
-            errorMessage = "Invalid username or password.";
+            // Handle invalid login
         }
     }
 
-    private class LoginModel
-    {
 
+    private User AuthenticateUser(string username, string password)
+    {
+        // Your authentication logic here
+        return null;
+    }
+
+    public class LoginModel
+    {
         public string UserName { get; set; }
         public string Password { get; set; }
     }
 }
-
