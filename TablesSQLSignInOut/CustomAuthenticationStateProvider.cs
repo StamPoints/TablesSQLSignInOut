@@ -8,42 +8,29 @@ public class CustomAuthenticationStateProvider : AuthenticationStateProvider
 
     public override Task<AuthenticationState> GetAuthenticationStateAsync()
     {
-        // Replace with your logic to retrieve the authenticated user
-        var user = GetUserFromSessionOrDatabase();
-
-        if (user != null)
-        {
-            var identity = new ClaimsIdentity(new[]
-            {
-                new Claim(ClaimTypes.Name, user.UserName),
-                new Claim("WorkID", user.WorkID.ToString())
-            }, "Custom authentication");
-
-            var principal = new ClaimsPrincipal(identity);
-            return Task.FromResult(new AuthenticationState(principal));
-        }
-
+        // Return an unauthenticated user by default
         return Task.FromResult(new AuthenticationState(_anonymous));
     }
 
-    // Implement this method to retrieve the user from session or database
-    private User GetUserFromSessionOrDatabase()
-    {
-        // Your logic here
-        return null;
-    }
     public Task MarkUserAsAuthenticated(User user)
     {
-        var identity = new ClaimsIdentity(new[]
+        var claims = new[]
         {
-        new Claim(ClaimTypes.Name, user.UserName),
-        new Claim("WorkID", user.WorkID.ToString())
-    }, "Custom authentication");
+            new Claim(ClaimTypes.Name, user.UserName),
+            // Add other claims as needed
+        };
 
+        var identity = new ClaimsIdentity(claims, "apiauth_type");
         var principal = new ClaimsPrincipal(identity);
+
         NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(principal)));
 
         return Task.CompletedTask;
     }
 
+    public Task MarkUserAsLoggedOut()
+    {
+        NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(_anonymous)));
+        return Task.CompletedTask;
+    }
 }

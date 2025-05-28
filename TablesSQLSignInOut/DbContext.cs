@@ -10,6 +10,16 @@
     public DbSet<User> Users { get; set; }
 }
 
+public class TestDataDbContext : DbContext
+{
+    public TestDataDbContext(DbContextOptions<TestDataDbContext> options)
+        : base(options)
+    {
+    }
+
+    public DbSet<User> Users { get; set; }
+}
+
 public class SqlServerDbContext : DbContext
 {
     public SqlServerDbContext(DbContextOptions<SqlServerDbContext> options)
@@ -49,5 +59,5 @@ public class User
 {
     public int WorkID { get; set; }
     public string UserName { get; set; }
-    public string Password { get; set; }
+    public string Password { get; set; } 
 }

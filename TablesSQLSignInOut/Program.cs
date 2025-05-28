@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -6,6 +5,7 @@ using TablesSQLSignInOut.Components;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Service registrations
 builder.Services.AddIdentity<ApplicationUser, ApplicationRole>()
     .AddUserStore<CustomUserStore>()
     .AddRoleStore<CustomRoleStore>()
@@ -16,11 +16,8 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.LoginPath = "/login";
 });
 
-
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
-
-
 
 builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
 builder.Services.AddAuthorization();
@@ -29,7 +26,8 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddDbContextFactory<SqlServerDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("SqlServerConnection")));
 
-
+builder.Services.AddDbContext<TestDataDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("TestDataConnection")));
 
 builder.Services.AddDbContext<MySqlDbContext>(options =>
     options.UseMySql(
@@ -38,7 +36,7 @@ builder.Services.AddDbContext<MySqlDbContext>(options =>
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Middleware pipeline
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
@@ -53,7 +51,6 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Add the anti-forgery middleware here
 app.UseAntiforgery();
 
 app.MapRazorComponents<App>()

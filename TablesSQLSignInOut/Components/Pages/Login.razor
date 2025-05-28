@@ -2,30 +2,47 @@
 @attribute [AllowAnonymous]
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject NavigationManager NavigationManager
+@inject TestDataDbContext TestDataContext
 
-<EditForm Model="loginModel" OnValidSubmit="HandleLogin" FormName="LoginForm">
+<EditForm EditContext="editContext" OnValidSubmit="HandleLogin" FormName="LoginForm">
     <DataAnnotationsValidator />
     <ValidationSummary />
+    <AntiforgeryToken />
 
     <div>
         <label for="username">Username:</label>
         <InputText id="username" @bind-Value="loginModel.UserName" />
+        <ValidationMessage For="@(() => loginModel.UserName)" />
     </div>
 
     <div>
         <label for="password">Password:</label>
         <InputText id="password" type="password" @bind-Value="loginModel.Password" />
+        <ValidationMessage For="@(() => loginModel.Password)" />
     </div>
 
     <button type="submit">Login</button>
 </EditForm>
 
+
 @code {
     private LoginModel loginModel = new LoginModel();
+    private EditContext editContext;
+    private ValidationMessageStore messageStore;
+
+    protected override void OnInitialized()
+    {
+        editContext = new EditContext(loginModel);
+        messageStore = new ValidationMessageStore(editContext);
+    }
 
     private async Task HandleLogin()
     {
-        var user = AuthenticateUser(loginModel.UserName, loginModel.Password);
+        // Clear existing messages
+        messageStore.Clear();
+        editContext.NotifyValidationStateChanged();
+
+        var user = await AuthenticateUser(loginModel.UserName, loginModel.Password);
 
         if (user != null)
         {
@@ -35,19 +52,24 @@
         }
         else
         {
-            // Handle invalid login
+            // Add a custom validation message
+            messageStore.Add(() => loginModel.Password, "Invalid username or password.");
+            editContext.NotifyValidationStateChanged();
         }
     }
 
-    private User AuthenticateUser(string username, string password)
+    private async Task<User> AuthenticateUser(string username, string password)
     {
-        // Your authentication logic here
-        return null;
+        return await TestDataContext.Users
+            .FirstOrDefaultAsync(u => u.UserName == username && u.Password == password);
     }
 
     public class LoginModel
     {
+        [Required(ErrorMessage = "Username is required.")]
         public string UserName { get; set; }
+
+        [Required(ErrorMessage = "Password is required.")]
         public string Password { get; set; }
     }
 }
