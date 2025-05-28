@@ -31,7 +31,6 @@
         {
             var customAuthProvider = (CustomAuthenticationStateProvider)AuthenticationStateProvider;
             await customAuthProvider.MarkUserAsAuthenticated(user);
-
             NavigationManager.NavigateTo("/");
         }
         else
