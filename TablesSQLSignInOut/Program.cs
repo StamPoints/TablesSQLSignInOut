@@ -20,10 +20,7 @@ builder.Services.ConfigureApplicationCookie(options =>
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder.Services.AddIdentity<ApplicationUser, ApplicationRole>()
-    .AddUserStore<CustomUserStore>()
-    .AddRoleStore<CustomRoleStore>()
-    .AddDefaultTokenProviders();
+
 
 builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
 builder.Services.AddAuthorization();

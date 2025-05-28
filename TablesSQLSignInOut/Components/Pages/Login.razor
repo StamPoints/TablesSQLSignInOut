@@ -3,10 +3,20 @@
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject NavigationManager NavigationManager
 
+<EditForm Model="loginModel" OnValidSubmit="HandleLogin" FormName="LoginForm">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
 
-<EditForm Model="loginModel" OnValidSubmit="HandleLogin">
-    <InputText @bind-Value="loginModel.UserName" placeholder="Username" />
-    <InputText @bind-Value="loginModel.Password" placeholder="Password" type="password" />
+    <div>
+        <label for="username">Username:</label>
+        <InputText id="username" @bind-Value="loginModel.UserName" />
+    </div>
+
+    <div>
+        <label for="password">Password:</label>
+        <InputText id="password" type="password" @bind-Value="loginModel.Password" />
+    </div>
+
     <button type="submit">Login</button>
 </EditForm>
 
@@ -29,7 +39,6 @@
             // Handle invalid login
         }
     }
-
 
     private User AuthenticateUser(string username, string password)
     {
