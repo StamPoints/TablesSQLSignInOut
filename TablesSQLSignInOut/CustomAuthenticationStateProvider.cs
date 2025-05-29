@@ -1,36 +1,77 @@
-﻿using System.Security.Claims;
+﻿using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.JSInterop;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text.Json;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Components.Authorization;
+using System.Collections.Generic;
 
 public class CustomAuthenticationStateProvider : AuthenticationStateProvider
 {
-    private ClaimsPrincipal _anonymous = new ClaimsPrincipal(new ClaimsIdentity());
+    private readonly IJSRuntime _jsRuntime;
 
-    public override Task<AuthenticationState> GetAuthenticationStateAsync()
+    public CustomAuthenticationStateProvider(IJSRuntime jsRuntime)
     {
-        // Return an unauthenticated user by default
-        return Task.FromResult(new AuthenticationState(_anonymous));
+        _jsRuntime = jsRuntime;
     }
 
-    public Task MarkUserAsAuthenticated(User user)
+    private async Task<string> GetTokenAsync()
     {
-        var claims = new[]
+        return await _jsRuntime.InvokeAsync<string>("localStorage.getItem", "authToken");
+    }
+
+    public override async Task<AuthenticationState> GetAuthenticationStateAsync()
+    {
+        var token = await GetTokenAsync();
+
+        if (string.IsNullOrWhiteSpace(token))
         {
-            new Claim(ClaimTypes.Name, user.UserName),
-            // Add other claims as needed
-        };
+            return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
+        }
 
-        var identity = new ClaimsIdentity(claims, "apiauth_type");
-        var principal = new ClaimsPrincipal(identity);
+        var claims = ParseClaimsFromJwt(token);
+        var identity = new ClaimsIdentity(claims, "jwt");
+        var user = new ClaimsPrincipal(identity);
 
-        NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(principal)));
-
-        return Task.CompletedTask;
+        return new AuthenticationState(user);
     }
 
-    public Task MarkUserAsLoggedOut()
+    private IEnumerable<Claim> ParseClaimsFromJwt(string jwt)
     {
-        NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(_anonymous)));
-        return Task.CompletedTask;
+        var claims = new List<Claim>();
+        var payload = jwt.Split('.')[1];
+        var jsonBytes = ParseBase64WithoutPadding(payload);
+        var keyValuePairs = JsonSerializer.Deserialize<Dictionary<string, object>>(jsonBytes);
+
+        foreach (var kvp in keyValuePairs)
+        {
+            claims.Add(new Claim(kvp.Key, kvp.Value.ToString()));
+        }
+
+        return claims;
+    }
+
+    private byte[] ParseBase64WithoutPadding(string base64)
+    {
+        switch (base64.Length % 4)
+        {
+            case 2: base64 += "=="; break;
+            case 3: base64 += "="; break;
+        }
+        return Convert.FromBase64String(base64);
+    }
+
+    public async Task MarkUserAsAuthenticated(string token)
+    {
+        await _jsRuntime.InvokeVoidAsync("localStorage.setItem", "authToken", token);
+        var identity = new ClaimsIdentity(ParseClaimsFromJwt(token), "jwt");
+        var user = new ClaimsPrincipal(identity);
+        NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(user)));
+    }
+
+    public async Task MarkUserAsLoggedOut()
+    {
+        await _jsRuntime.InvokeVoidAsync("localStorage.removeItem", "authToken");
+        NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()))));
     }
 }

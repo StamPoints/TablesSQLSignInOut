@@ -17,7 +17,22 @@
 
     <main>
         <div class="top-row px-4">
-           
+            <button @onclick="Logout">Logout</button>
+
+            @code {
+                [Inject]
+                private AuthService AuthService { get; set; }
+
+                [Inject]
+                private NavigationManager NavigationManager { get; set; }
+
+                private void Logout()
+                {
+                    AuthService.Logout();
+                    NavigationManager.NavigateTo("/login");
+                }
+            }
+
         </div>
 
         <article class="content px-4">
