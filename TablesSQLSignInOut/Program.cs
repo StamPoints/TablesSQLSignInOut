@@ -29,11 +29,27 @@ builder.Services.AddScoped<HttpClient>(sp =>
     return clientFactory.CreateClient();
 });
 
+// Register CustomAuthenticationStateProvider and expose it as AuthenticationStateProvider
+builder.Services.AddScoped<CustomAuthenticationStateProvider>();
+builder.Services.AddScoped<AuthenticationStateProvider>(provider =>
+    provider.GetRequiredService<CustomAuthenticationStateProvider>());
+
+// Register AuthService correctly (make sure this comes AFTER AddHttpClient)
+builder.Services.AddHttpClient<AuthService>();
+builder.Services.AddScoped<AuthService>();
 
 
 builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
 builder.Services.AddAuthorization();
+
+builder.Services.AddHttpClient();
+
+builder.Services.AddHttpClient<AuthService>();
 builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<CustomAuthenticationStateProvider>();
+builder.Services.AddScoped<AuthenticationStateProvider>(provider =>
+    provider.GetRequiredService<CustomAuthenticationStateProvider>());
+
 
 builder.Services.AddDbContextFactory<SqlServerDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("SqlServerConnection")));

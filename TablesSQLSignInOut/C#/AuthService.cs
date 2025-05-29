@@ -3,9 +3,9 @@
     private readonly HttpClient _httpClient;
     private readonly CustomAuthenticationStateProvider _customAuthStateProvider;
 
-    public AuthService(IHttpClientFactory httpClientFactory, CustomAuthenticationStateProvider customAuthStateProvider)
+    public AuthService(HttpClient httpClient, CustomAuthenticationStateProvider customAuthStateProvider)
     {
-        _httpClient = httpClientFactory.CreateClient();
+        _httpClient = httpClient;
         _customAuthStateProvider = customAuthStateProvider;
     }
     public async Task<bool> Login(string username, string password)
