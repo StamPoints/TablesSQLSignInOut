@@ -15,26 +15,38 @@ public class CustomAuthenticationStateProvider : AuthenticationStateProvider
         _jsRuntime = jsRuntime;
     }
 
-    private async Task<string> GetTokenAsync()
-    {
-        return await _jsRuntime.InvokeAsync<string>("localStorage.getItem", "authToken");
-    }
+    private string _cachedToken;
+    private bool _tokenInitialized;
 
     public override async Task<AuthenticationState> GetAuthenticationStateAsync()
     {
-        var token = await GetTokenAsync();
-
-        if (string.IsNullOrWhiteSpace(token))
+        if (!_tokenInitialized)
         {
-            return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
+            _cachedToken = await GetTokenAsync();
+            _tokenInitialized = true;
         }
 
-        var claims = ParseClaimsFromJwt(token);
-        var identity = new ClaimsIdentity(claims, "jwt");
-        var user = new ClaimsPrincipal(identity);
+        var identity = string.IsNullOrEmpty(_cachedToken)
+            ? new ClaimsIdentity()
+            : new ClaimsIdentity(ParseClaimsFromJwt(_cachedToken), "jwt");
 
+        var user = new ClaimsPrincipal(identity);
         return new AuthenticationState(user);
     }
+
+    private async Task<string> GetTokenAsync()
+    {
+        try
+        {
+            return await _jsRuntime.InvokeAsync<string>("localStorage.getItem", "authToken");
+        }
+        catch (InvalidOperationException)
+        {
+            // JS interop not available during prerendering
+            return null;
+        }
+    }
+
 
     private IEnumerable<Claim> ParseClaimsFromJwt(string jwt)
     {

@@ -1,8 +1,4 @@
-﻿@page "/"
-@attribute [Authorize]
-
-<PageTitle>Home</PageTitle>
-
-<h1>Hello, world!</h1>
-
-Welcome to your new app.
+﻿@page "/home"
+@attribute [AllowAnonymous]
+<h1>Home</h1>
+<p>Welcome to the authenticated section of the app.</p>
