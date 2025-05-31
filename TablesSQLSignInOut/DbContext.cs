@@ -13,11 +13,13 @@ public class YourDbContext : DbContext
 public class Employee
 {
     public int ID { get; set; }
+    public int WorkID { get; set; }
     public string Name { get; set; }
     public string FamilyName { get; set; }
     public int Age { get; set; }
-    public int WorkID { get; set; }
     public string Email { get; set; }
-    public DateTime SignInTime { get; set; }
-    public DateTime SignOutTime { get; set; }
+    public string UserPage { get; set; }
+    public int WorkTimeTotal { get; set; }
+    public string JobTitle { get; set; }
+    public string privileges { get; set; }
 }

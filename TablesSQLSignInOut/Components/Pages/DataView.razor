@@ -17,28 +17,24 @@ else
     <table class="table">
         <thead>
             <tr>
-                <th>ID</th>
+				<th>Work ID</th>
                 <th>Name</th>
                 <th>Family Name</th>
-                <th>Age</th>
-                <th>Work ID</th>
-                <th>Email</th>
-                <th>Sign In Time</th>
-                <th>Sign Out Time</th>
+                <th>User Page</th>
+              
+              
             </tr>
         </thead>
         <tbody>
             @foreach (var employee in Employees)
             {
                 <tr>
-                    <td>@employee.ID</td>
+                     <td>@employee.WorkID</td>
                     <td>@employee.Name</td>
                     <td>@employee.FamilyName</td>
-                    <td>@employee.Age</td>
-                    <td>@employee.WorkID</td>
-                    <td>@employee.Email</td>
-                    <td>@employee.SignInTime.ToString("yyyy-MM-dd HH:mm:ss")</td>
-                    <td>@employee.SignOutTime.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                    <td>
+                        <a href="@employee.UserPage" target="_blank">View</a>
+                    </td>
                 </tr>
             }
         </tbody>
