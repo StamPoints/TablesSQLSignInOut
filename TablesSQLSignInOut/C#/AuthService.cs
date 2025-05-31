@@ -1,38 +1,29 @@
-﻿public class AuthService
+﻿using Microsoft.EntityFrameworkCore;
+
+public class AuthService
 {
-    private readonly HttpClient _httpClient;
-    private readonly CustomAuthenticationStateProvider _customAuthStateProvider;
+    private readonly TestDataDbContext _context;
+    private readonly CustomAuthenticationStateProvider _authStateProvider;
 
-    public AuthService(HttpClient httpClient, CustomAuthenticationStateProvider customAuthStateProvider)
+    public AuthService(TestDataDbContext context, CustomAuthenticationStateProvider authStateProvider)
     {
-        _httpClient = httpClient;
-        _customAuthStateProvider = customAuthStateProvider;
+        _context = context;
+        _authStateProvider = authStateProvider;
     }
-    public async Task<bool> Login(string username, string password)
+
+    public async Task<bool> LoginAsync(string username, string password)
     {
-        // Implement your login logic here, e.g., send a request to your API
-        // and retrieve the JWT token upon successful authentication.
-
-        var token = await RetrieveTokenFromApi(username, password);
-
-        if (!string.IsNullOrEmpty(token))
+        var user = await _context.Users.SingleOrDefaultAsync(u => u.UserName == username);
+        if (user != null && user.Password == password)
         {
-            await _customAuthStateProvider.MarkUserAsAuthenticated(token);
+            await _authStateProvider.MarkUserAsAuthenticated(user.UserName);
             return true;
         }
-
         return false;
     }
 
-    public async Task Logout()
+    public async Task LogoutAsync()
     {
-        await _customAuthStateProvider.MarkUserAsLoggedOut();
-    }
-
-    private async Task<string> RetrieveTokenFromApi(string username, string password)
-    {
-        // Replace this with your actual API call to retrieve the token.
-        // This is just a placeholder for demonstration purposes.
-        return await Task.FromResult("your-jwt-token");
+        await _authStateProvider.MarkUserAsLoggedOut();
     }
 }

@@ -4,35 +4,28 @@
 @inject NavigationManager NavigationManager
 @inject TestDataDbContext TestDataContext
 @inject AuthService AuthService
+@inject IJSRuntime JSRuntime
+@inject AuthService AuthService
+@inject NavigationManager Navigation
 
-
-<EditForm Model="loginModel" OnValidSubmit="HandleLogin" FormName="LoginForm">
+<EditForm Model="loginModel" OnValidSubmit="HandleLogin">
     <DataAnnotationsValidator />
     <ValidationSummary />
-    <AntiforgeryToken />
 
-    <div>
-        <label>Username:</label>
-        <InputText @bind-Value="loginModel.Username" />
-    </div>
-    <div>
-        <label>Password:</label>
-        <InputText @bind-Value="loginModel.Password" type="password" />
-    </div>
-
+    <InputText @bind-Value="loginModel.Username" placeholder="Username" />
+    <InputText @bind-Value="loginModel.Password" type="password" placeholder="Password" />
     <button type="submit">Login</button>
 </EditForm>
-
 
 @code {
     private LoginModel loginModel = new LoginModel();
 
     private async Task HandleLogin()
     {
-        var success = await AuthService.Login(loginModel.Username, loginModel.Password);
+        var success = await AuthService.LoginAsync(loginModel.Username, loginModel.Password);
         if (success)
         {
-            NavigationManager.NavigateTo("/");
+            Navigation.NavigateTo("/");
         }
         else
         {
@@ -44,6 +37,7 @@
     {
         [Required]
         public string Username { get; set; }
+
         [Required]
         public string Password { get; set; }
     }

@@ -40,6 +40,8 @@ builder.Services.AddScoped<AuthService>();
 
 
 builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
+builder.Services.AddScoped<CustomAuthenticationStateProvider>();
+
 builder.Services.AddAuthorization();
 
 builder.Services.AddHttpClient();
