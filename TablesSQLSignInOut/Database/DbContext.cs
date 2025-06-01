@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Hosting.Server;
+using Microsoft.EntityFrameworkCore;
 
 public class YourDbContext : DbContext
 {
@@ -6,10 +7,15 @@ public class YourDbContext : DbContext
         : base(options)
     {
     }
+    protected override void OnConfiguring(DbContextOptionsBuilder optionBuilder)
+    {
+       optionBuilder.UseSqlServer("Data Source= 100.117.170.73; Database = SignInOutData; User Id = sa; Password = Gjholli & 2201; TrustServerCertificate = True;").AddInterceptors(new AuditInterceptor());
+
+    }
 
     public DbSet<Employee> Employees { get; set; }
 
-    public DbSet<AuditEntity> AuditEntities { get; set; }
+    public DbSet<AuditEntity> AuditEntries { get; set; }
 }
 public class AuditEntity
 {
