@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.EntityFrameworkCore;
+using TablesSQLSignInOut.Database;
 
 public class YourDbContext : DbContext
 {
@@ -7,11 +8,12 @@ public class YourDbContext : DbContext
         : base(options)
     {
     }
-    protected override void OnConfiguring(DbContextOptionsBuilder optionBuilder)
-    {
-       optionBuilder.UseSqlServer("Data Source= 100.117.170.73; Database = SignInOutData; User Id = sa; Password = Gjholli & 2201; TrustServerCertificate = True;").AddInterceptors(new AuditInterceptor());
+    //protected override void OnConfiguring(DbContextOptionsBuilder optionBuilder)
+    //{
+    //   optionBuilder.UseSqlServer("Data Source= 100.117.170.73; Database = SignInOutData; User Id = ; Password = Gjholli&2201; TrustServerCertificate = True;")
+    //        .AddInterceptors(new AuditInticeptor());
 
-    }
+    //}
 
     public DbSet<Employee> Employees { get; set; }
 

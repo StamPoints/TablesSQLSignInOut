@@ -24,15 +24,28 @@ namespace TablesSQLSignInOut.Database
             return base.SavingChangesAsync(eventData, result, cancellationToken);
         }
 
-        public override ValueTask<int> SavedChangesAsync(DbContextEventData eventData,
-            InterceptionResult<int> result,
-            CancellationToken cancellationToken = new CancellationToken())
+        // The method signature for SavedChangesAsync is incorrect. 
+        // The correct override in SaveChangesInterceptor is:
+
+        public override ValueTask<int> SavedChangesAsync(
+            SaveChangesCompletedEventData eventData,
+            int result,
+            CancellationToken cancellationToken = default)
         {
-            return base.SavingChangesAsync(eventData, result, cancellationToken);
+            return base.SavedChangesAsync(eventData, result, cancellationToken);
+        }
+        // The method signature is incorrect. 
+        // The correct override for SaveChangesFailed in SaveChangesInterceptor is:
+
+      
+        public override Task SaveChangesFailedAsync(
+            DbContextErrorEventData eventData,
+            CancellationToken cancellationToken = default)
+        {
+            return base.SaveChangesFailedAsync(eventData, cancellationToken);
         }
 
-        public override SavedChagesFailed(EventData);
-
+       
 
 
     }
