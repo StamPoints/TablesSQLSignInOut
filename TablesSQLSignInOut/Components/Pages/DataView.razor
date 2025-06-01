@@ -1,6 +1,13 @@
 ﻿@page "/DataView"
 @using Microsoft.EntityFrameworkCore
 @inject IDbContextFactory<YourDbContext> DbContextFactory
+@using TablesSQLSignInOut.Models;
+@using TablesSQLSignInOut.Database;
+@inject TablesSQLSignInOut.Database.DbEdit DbEditor
+@* @attribute [RenderMode(InteractiveServer)] *@
+@inject DbEdit DbEditor
+@rendermode InteractiveServer
+
 
 <h1>Data View</h1>
 
@@ -17,23 +24,30 @@ else
     <table class="table">
         <thead>
             <tr>
-				<th>Work ID</th>
+                <th>Work ID</th>
                 <th>Name</th>
                 <th>Family Name</th>
                 <th>User Page</th>
-              
-              
+                <th>Edit</th>
             </tr>
         </thead>
         <tbody>
             @foreach (var employee in Employees)
             {
                 <tr>
-                     <td>@employee.WorkID</td>
-                    <td>@employee.Name</td>
+                    <td>@employee.WorkID</td>
+                    <td>@employee.Name </td>
                     <td>@employee.FamilyName</td>
                     <td>
                         <a href="@employee.UserPage" target="_blank">View</a>
+                    </td>
+                    <td>
+                        <button class="btn btn-primary" @onclick="() => EditEmployee(employee.WorkID)">Edit</button>
+
+
+
+                        <button type="btn btn-primary" @onclick="TestClick">Test Button</button>
+                           
                     </td>
                 </tr>
             }
@@ -44,9 +58,45 @@ else
 @code {
     private List<Employee> Employees;
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            DbEditor.MarkAsRendered();
+        }
+    }
+
+
+    private void TestClick()
+    {
+        Console.WriteLine("Test button clicked");
+        // Set a breakpoint here too.
+    }
+
     protected override async Task OnInitializedAsync()
     {
         using var context = DbContextFactory.CreateDbContext();
         Employees = await context.Employees.ToListAsync();
     }
+
+    private async Task EditEmployee(int workId)
+    {
+        await DbEditor.EditEmployee(workId);
+
+        // Refresh the employee list
+        using var context = DbContextFactory.CreateDbContext();
+        Employees = await context.Employees.ToListAsync();
+
+        // Trigger a UI refresh
+        await InvokeAsync(StateHasChanged);
+    }
+
+
+	protected void onClick()
+	{
+		Console.WriteLine("Button clicked");
+		// Set a breakpoint here to check if the method is called.
+	}
+
+   
 }

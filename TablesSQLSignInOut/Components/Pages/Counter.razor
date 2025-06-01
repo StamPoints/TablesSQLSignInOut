@@ -1,10 +1,10 @@
 ﻿@page "/counter"
+@using Microsoft.EntityFrameworkCore
+@using TablesSQLSignInOut.Models;
+@inject IDbContextFactory<YourDbContext> DbContextFactory
 
 
-protected override async Task OnInitializedAsync()
-{
-    Employees = await DbContext.Employees.ToListAsync();
-}
+
 @rendermode InteractiveServer
 
 <PageTitle>Counter</PageTitle>
@@ -24,4 +24,16 @@ protected override async Task OnInitializedAsync()
     {
         currentCount++;
     }
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbContextFactory.CreateDbContext();
+        Employees = await context.Employees.ToListAsync();
+    }
+
+
 }
+
+
+
+
+
