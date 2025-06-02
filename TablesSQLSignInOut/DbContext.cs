@@ -1,18 +1,30 @@
 ﻿using System.Net.NetworkInformation;
 using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.EntityFrameworkCore;
-using TablesSQLSignInOut.Database;
+
 using TablesSQLSignInOut.Models;
 
 public class YourDbContext : DbContext
 {
-    public YourDbContext(DbContextOptions<YourDbContext> options)
+
+
+    private readonly AuditInterceptor _auditInterceptor;
+
+    public YourDbContext(DbContextOptions<YourDbContext> options, AuditInterceptor auditInterceptor)
         : base(options)
     {
+        _auditInterceptor = auditInterceptor;
     }
 
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        optionsBuilder.AddInterceptors(_auditInterceptor);
+    }
+
+
+
     public DbSet<Employee> Employees { get; set; }
-    public DbSet<AuditEntity> AuditEntries { get; set; }
+    public DbSet<AuditEntry> AuditEntries { get; set; }
 }
 
 public class Employee
@@ -27,4 +39,13 @@ public class Employee
     public int WorkTimeTotal { get; set; }
     public string JobTitle { get; set; }
     public string privileges { get; set; }
+}
+public class AuditEntry
+{
+    public int ID { get; set; }
+    public string? MetaData { get; set; }
+    public DateTime StartTimeUtc { get; set; }
+    public DateTime EndTimeUtc { get; set; }
+    public bool Succeeded { get; set; }
+    public string ErrorMessage { get; set; } = string.Empty;
 }
