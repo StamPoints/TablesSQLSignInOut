@@ -1,15 +1,18 @@
 ﻿@page "/DataView"
 @using Microsoft.EntityFrameworkCore
 @inject IDbContextFactory<YourDbContext> DbContextFactory
-@using TablesSQLSignInOut.Models;
-@using TablesSQLSignInOut.Database;
-@inject TablesSQLSignInOut.Database.DbEdit DbEditor
-@* @attribute [RenderMode(InteractiveServer)] *@
-@inject DbEdit DbEditor
+@inject IJSRuntime JSRuntime
+@inject NavigationManager Navigation
 @rendermode InteractiveServer
 
-
 <h1>Data View</h1>
+
+@if (errorMessage != null)
+{
+    <div class="alert alert-danger">
+        @errorMessage
+    </div>
+}
 
 @if (Employees == null)
 {
@@ -36,18 +39,13 @@ else
             {
                 <tr>
                     <td>@employee.WorkID</td>
-                    <td>@employee.Name </td>
+                    <td>@employee.Name</td>
                     <td>@employee.FamilyName</td>
                     <td>
                         <a href="@employee.UserPage" target="_blank">View</a>
                     </td>
                     <td>
-                        <button class="btn btn-primary" @onclick="() => EditEmployee(employee.WorkID)">Edit</button>
-
-
-
-                        <button type="btn btn-primary" @onclick="TestClick">Test Button</button>
-                           
+                        <button class="btn btn-primary btn-sm" @onclick="() => NavigateToEdit(employee.ID)">Edit</button>
                     </td>
                 </tr>
             }
@@ -56,47 +54,33 @@ else
 }
 
 @code {
-    private List<Employee> Employees;
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            DbEditor.MarkAsRendered();
-        }
-    }
-
-
-    private void TestClick()
-    {
-        Console.WriteLine("Test button clicked");
-        // Set a breakpoint here too.
-    }
+    private List<Employee> Employees = new();
+    private string? errorMessage;
+    private bool isLoaded;
 
     protected override async Task OnInitializedAsync()
     {
-        using var context = DbContextFactory.CreateDbContext();
-        Employees = await context.Employees.ToListAsync();
+        try
+        {
+            using var context = DbContextFactory.CreateDbContext();
+            Employees = await context.Employees.ToListAsync();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error loading employees: {ex.Message}";
+        }
     }
 
-    private async Task EditEmployee(int workId)
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        await DbEditor.EditEmployee(workId);
-
-        // Refresh the employee list
-        using var context = DbContextFactory.CreateDbContext();
-        Employees = await context.Employees.ToListAsync();
-
-        // Trigger a UI refresh
-        await InvokeAsync(StateHasChanged);
+        if (firstRender && errorMessage != null)
+        {
+            await JSRuntime.InvokeVoidAsync("alert", errorMessage);
+        }
     }
 
-
-	protected void onClick()
-	{
-		Console.WriteLine("Button clicked");
-		// Set a breakpoint here to check if the method is called.
-	}
-
-   
+    private void NavigateToEdit(int employeeId)
+    {
+        Navigation.NavigateTo($"/edit/{employeeId}");
+    }
 }

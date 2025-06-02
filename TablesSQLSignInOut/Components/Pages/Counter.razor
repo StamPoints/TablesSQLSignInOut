@@ -17,7 +17,7 @@
 
 @code {
     
-    private List <Employee> Employees { get; set; }
+  
     private int currentCount = 0;
 
     private void IncrementCount()
@@ -27,7 +27,7 @@
     protected override async Task OnInitializedAsync()
     {
         using var context = DbContextFactory.CreateDbContext();
-        Employees = await context.Employees.ToListAsync();
+       
     }
 
 
