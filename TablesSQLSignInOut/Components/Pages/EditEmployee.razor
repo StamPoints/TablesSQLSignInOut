@@ -1,4 +1,5 @@
 ﻿@page "/edit/{EmployeeId:int}"
+@rendermode InteractiveServer
 @using Microsoft.EntityFrameworkCore
 @inject IDbContextFactory<YourDbContext> DbContextFactory
 @inject NavigationManager Navigation
@@ -11,7 +12,7 @@
 }
 else
 {
-    <EditForm Model="employee" OnValidSubmit="HandleValidSubmit">
+    <EditForm Model="employee" OnValidSubmit="HandleValidSubmit" FormName="EditEmployeeForm">
         <DataAnnotationsValidator />
         <ValidationSummary />
         <div class="mb-3">
@@ -54,4 +55,4 @@ else
     {
         Navigation.NavigateTo("/dataview");
     }
-} 
+}

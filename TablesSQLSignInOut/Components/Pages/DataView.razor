@@ -4,6 +4,7 @@
 @inject IJSRuntime JSRuntime
 @inject NavigationManager Navigation
 @rendermode InteractiveServer
+@* @inject TablesSQLSignInOut.Database.DbEdit DbEditor *@
 
 <h1>Data View</h1>
 
@@ -83,4 +84,10 @@ else
     {
         Navigation.NavigateTo($"/edit/{employeeId}");
     }
+
+   // await DbEditor.EditEmployee(workId); Add commentMore actions;
+
+ 
+   
+
 }
