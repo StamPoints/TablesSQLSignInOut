@@ -31,7 +31,7 @@ namespace TablesSQLSignInOut.Database
                   x.State == EntityState.Deleted))
      .Select(x => new AuditEntry
      {
-         ID = Guid.NewGuid(), 
+        
          StartTimeUtc = StartTime,
          MetaData = x.DebugView.LongView 
      })
@@ -64,7 +64,7 @@ namespace TablesSQLSignInOut.Database
                 }
             }
 
-            return base.SavingChangesAsync(eventData, result, Guid, cancellationToken);
+            return base.SavingChangesAsync(eventData, result, cancellationToken);
         }
 
         public override ValueTask<int> SavedChangesAsync(

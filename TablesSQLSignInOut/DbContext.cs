@@ -6,7 +6,7 @@ using TablesSQLSignInOut.Models;
 
 public class YourDbContext : DbContext
 {
-
+    private readonly List<AuditEntry> _auditEntries;
 
     private readonly AuditInterceptor _auditInterceptor;
 

@@ -18,6 +18,9 @@ builder.Services.AddDbContextFactory<YourDbContext>((serviceProvider, options) =
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
+builder.Services.AddKeyedScoped<List<AuditEntry>>("Audit",(_, _) => new());
+
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -26,6 +29,8 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
     app.UseHsts();
 }
+
+
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
