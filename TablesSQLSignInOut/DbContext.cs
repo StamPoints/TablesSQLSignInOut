@@ -1,7 +1,7 @@
 ﻿using System.Net.NetworkInformation;
 using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.EntityFrameworkCore;
-
+using TablesSQLSignInOut.Database;
 using TablesSQLSignInOut.Models;
 
 public class YourDbContext : DbContext

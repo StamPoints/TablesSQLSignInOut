@@ -1,6 +1,6 @@
 using TablesSQLSignInOut.Components;
 using Microsoft.EntityFrameworkCore;
-
+using TablesSQLSignInOut.Database;
 var builder = WebApplication.CreateBuilder(args);
 
 // Register AuditInterceptor as singleton
