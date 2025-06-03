@@ -21,6 +21,24 @@ namespace TablesSQLSignInOut.Database
             var context = eventData.Context;
             if (context != null)
             {
+
+                var StartTime = DateTime.UtcNow;
+
+                var auditEntries = eventData.Context.ChangeTracker.Entries()
+     .Where(x => !(x.Entity is AuditEntry) &&
+                 (x.State == EntityState.Added ||
+                  x.State == EntityState.Modified ||
+                  x.State == EntityState.Deleted))
+     .Select(x => new AuditEntry
+     {
+         ID = Guid.NewGuid(), 
+         StartTimeUtc = StartTime,
+         MetaData = x.DebugView.LongView 
+     })
+     .ToList();
+
+
+
                 foreach (var entry in context.ChangeTracker.Entries())
                 {
                     if (entry.State == EntityState.Added ||
@@ -46,7 +64,7 @@ namespace TablesSQLSignInOut.Database
                 }
             }
 
-            return base.SavingChangesAsync(eventData, result, cancellationToken);
+            return base.SavingChangesAsync(eventData, result, Guid, cancellationToken);
         }
 
         public override ValueTask<int> SavedChangesAsync(
