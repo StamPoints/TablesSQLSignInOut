@@ -5,6 +5,8 @@
 @inject NavigationManager Navigation
 @rendermode InteractiveServer
 @* @inject TablesSQLSignInOut.Database.DbEdit DbEditor *@
+@inject IDbContextFactory<YourDbContext> DbContextFactory
+
 
 <h1>Data View</h1>
 
@@ -55,6 +57,9 @@ else
 }
 
 @code {
+    
+
+
     private List<Employee> Employees = new();
     private string? errorMessage;
     private bool isLoaded;

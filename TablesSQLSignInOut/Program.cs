@@ -1,12 +1,15 @@
 using TablesSQLSignInOut.Components;
 using Microsoft.EntityFrameworkCore;
 using TablesSQLSignInOut.Database;
+using Microsoft.Extensions.Configuration;
 var builder = WebApplication.CreateBuilder(args);
+
+
 
 // Register AuditInterceptor as singleton
 builder.Services.AddSingleton<AuditInterceptor>();
 
-// Register IDbContextFactory<YourDbContext> with the interceptor
+// Register YourDbContext with the interceptor
 builder.Services.AddDbContextFactory<YourDbContext>((serviceProvider, options) =>
 {
     var interceptor = serviceProvider.GetRequiredService<AuditInterceptor>();
@@ -14,14 +17,12 @@ builder.Services.AddDbContextFactory<YourDbContext>((serviceProvider, options) =
            .AddInterceptors(interceptor);
 });
 
+
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder.Services.AddKeyedScoped<List<AuditEntry>>("Audit",(_, _) => new());
-
-builder.Services.AddScoped<AuditEntry>();
-
+builder.Services.AddKeyedScoped<List<AuditEntry>>("Audit", (_, _) => new());
 
 var app = builder.Build();
 
@@ -32,8 +33,6 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-
-
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseAntiforgery();
@@ -42,4 +41,3 @@ app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
 app.Run();
-;

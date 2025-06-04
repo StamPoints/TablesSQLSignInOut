@@ -31,6 +31,7 @@ public class YourDbContext : DbContext
     }
 
 
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         optionsBuilder.AddInterceptors(_auditInterceptor);
