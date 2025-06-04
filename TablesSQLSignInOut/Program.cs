@@ -20,6 +20,8 @@ builder.Services.AddRazorComponents()
 
 builder.Services.AddKeyedScoped<List<AuditEntry>>("Audit",(_, _) => new());
 
+builder.Services.AddScoped<AuditEntry>();
+
 
 var app = builder.Build();
 

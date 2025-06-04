@@ -7,14 +7,29 @@ using TablesSQLSignInOut.Models;
 public class YourDbContext : DbContext
 {
     private readonly List<AuditEntry> _auditEntries;
-
+    
     private readonly AuditInterceptor _auditInterceptor;
+
+    //public AuditInterceptor(List<AuditEntry> auditEntries)
+    //{
+    //    _auditEntries = auditEntries;
+    //}
+
+
+    //public YourDbContext(DbContextOptions<YourDbContext> options, List<AuditEntry> auditEntries)
+    //    : base(options)
+    //{
+    //    _auditEntries = auditEntries;
+    //}
+
+
 
     public YourDbContext(DbContextOptions<YourDbContext> options, AuditInterceptor auditInterceptor)
         : base(options)
     {
         _auditInterceptor = auditInterceptor;
     }
+
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
