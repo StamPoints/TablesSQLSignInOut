@@ -13,26 +13,22 @@ namespace TablesSQLSignInOut.Database
     // AuditInterceptor inherits from SaveChangesInterceptor to hook into EF Core lifecycle events
     public class AuditInterceptor : SaveChangesInterceptor
     {
-        // This list temporarily stores AuditEntry records during the SaveChanges process
-        private readonly List<AuditEntry> _auditEntries = new List<AuditEntry>();
+        private readonly List<AuditEntry> _auditEntries = new();
+        private bool _isSavingAuditEntries;
 
-        // This method is called right before SaveChangesAsync runs in EF Core
         public override ValueTask<InterceptionResult<int>> SavingChangesAsync(
             DbContextEventData eventData,
             InterceptionResult<int> result,
             CancellationToken cancellationToken = default)
         {
-            // Retrieve the current DbContext from the event data
-            var context = eventData.Context;
+            if (_isSavingAuditEntries)
+                return base.SavingChangesAsync(eventData, result, cancellationToken);
 
-            // Only proceed if the context is not null
+            var context = eventData.Context;
             if (context != null)
             {
-                // Capture the start time of the save operation
                 var startTime = DateTime.UtcNow;
 
-                // Get all changed entities that are not already AuditEntry records
-                // and are being Added, Modified, or Deleted
                 var entries = context.ChangeTracker.Entries()
                     .Where(e => !(e.Entity is AuditEntry) &&
                                 (e.State == EntityState.Added ||
@@ -40,65 +36,46 @@ namespace TablesSQLSignInOut.Database
                                  e.State == EntityState.Deleted))
                     .Select(e => new AuditEntry
                     {
-                        // Set the start time and include metadata about the change
                         StartTimeUtc = startTime,
                         MetaData = e.DebugView.LongView
                     })
                     .ToList();
 
-                // Store these audit entries in the internal list for later processing
                 _auditEntries.AddRange(entries);
             }
 
-            // Continue with the normal save operation
             return base.SavingChangesAsync(eventData, result, cancellationToken);
         }
 
-        // This method is called after SaveChangesAsync completes successfully
         public override async ValueTask<int> SavedChangesAsync(
             SaveChangesCompletedEventData eventData,
             int result,
             CancellationToken cancellationToken = default)
         {
-            // Ensure the context is still valid
-            if (eventData.Context != null)
+            if (_auditEntries.Any() && eventData.Context != null)
             {
-                // Capture the end time of the save operation
                 var endTime = DateTime.UtcNow;
 
-                // Update each stored audit entry to record the end time and success status
                 foreach (var auditEntry in _auditEntries)
                 {
                     auditEntry.EndTimeUtc = endTime;
                     auditEntry.Succeeded = true;
                 }
 
-                // If there are any audit entries to save
-                if (_auditEntries.Any())
+                try
                 {
-                    // Add the audit entries to the AuditEntries table
+                    _isSavingAuditEntries = true;
                     eventData.Context.Set<AuditEntry>().AddRange(_auditEntries);
-
-                    // Clear the list after storing to the database to avoid duplication
                     _auditEntries.Clear();
-
-                    // Persist the audit entries to the database
                     await eventData.Context.SaveChangesAsync(cancellationToken);
+                }
+                finally
+                {
+                    _isSavingAuditEntries = false;
                 }
             }
 
-            // Continue with the normal save flow
             return await base.SavedChangesAsync(eventData, result, cancellationToken);
-        }
-
-        // This method is called if SaveChanges fails
-        public override void SaveChangesFailed(DbContextErrorEventData eventData)
-        {
-            // Log the error message to the console
-            Console.WriteLine($"SaveChanges failed: {eventData.Exception.Message}");
-
-            // Call base implementation
-            base.SaveChangesFailed(eventData);
         }
     }
 }

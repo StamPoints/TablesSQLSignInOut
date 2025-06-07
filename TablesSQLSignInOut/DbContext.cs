@@ -10,19 +10,7 @@ public class YourDbContext : DbContext
     
     private readonly AuditInterceptor _auditInterceptor;
 
-    //public AuditInterceptor(List<AuditEntry> auditEntries)
-    //{
-    //    _auditEntries = auditEntries;
-    //}
-
-
-    //public YourDbContext(DbContextOptions<YourDbContext> options, List<AuditEntry> auditEntries)
-    //    : base(options)
-    //{
-    //    _auditEntries = auditEntries;
-    //}
-
-
+  
 
     public YourDbContext(DbContextOptions<YourDbContext> options, AuditInterceptor auditInterceptor)
         : base(options)
@@ -34,7 +22,7 @@ public class YourDbContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.AddInterceptors(_auditInterceptor);
+        //optionsBuilder.AddInterceptors(_auditInterceptor);
     }
 
 
